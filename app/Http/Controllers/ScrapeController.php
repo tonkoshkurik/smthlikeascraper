@@ -15,7 +15,6 @@ class ScrapeController extends Controller
   {
     $sites = Sites::all();
     $result = array();
-
     $index = 0;
     foreach ($sites as $site) {
       $scraped = array();
@@ -33,63 +32,72 @@ class ScrapeController extends Controller
             'link'    =>  $scraped[$index]["links"][$i],
             'title'   =>  $scraped[$index]["title"][$i],
             'saved'   => 0
-          ]);
+            ]);
         }
         $index++;
       } else {
         FetchError::updateOrCreate([
           'site_id'   =>  $result["id"],
           'rss_url'   =>  $scrape->rss_url
-        ]);
+          ]);
       }
     }
 
     return view('scrape.index', [
-      "result" => $sites
-    ]);
-
+        "result" => $sites
+      ]);
   }
+
+
+  public function sendToWp()
+  {
+    $newScraped = Scraped::where('saved', 0)->get();
+    foreach ($newScraped as $scraped) {
+      $post = new Scrape\Scraper($scraped->link);
+      $p_content = $post->getContent();
+      $site = Sites::find($scraped->site_id);
+      if(!$site->api_integraion){  // Need to change it after finish with integraion cheking
+        $auth    = array(
+         "login"    =>   $site->login,
+         "password" =>   $site->password
+         );
+        $wp_post = array(
+         "title"   => $scraped->title,
+         "content" => $p_content["html"]
+         );
+
+        $wp_api = new WpAPI($site->site, $auth);
+        $post_id = $wp_api->newPost($wp_post);
+        if($post_id){
+          Scraped::where('title', $scraped->title)
+                  ->where('link', $scraped->link)
+                  ->update(['saved' => $post_id]);
+          var_dump($post_id);
+          var_dump($wp_post);
+        } else {
+          echo "update failed with post id: <br>";
+          var_dump($post_id);
+          echo "<br>";
+        }
+      }
+    }
+  }
+
   public function saveToWp($id){
     $news = Scraped::where('saved', 0)->get();
     foreach ($news as $new)
     {
-      $scrape = new Scrape\Scraper($new->link);
+     $scrape = new Scrape\Scraper($new->link);
+     $site = Sites::find($id);
+     $auth    = array(
+       "login"    =>   $site->login,
+       "password" =>   $site->password
+       );
+     $wp_post = array(
+       "title"   => $scrape->result["title"],
+       "content" => $scrape->result["html"]
+       );
 
-//      $site = Sites::find($id);
-//      $auth    = array(
-//        "login"    =>   $site->login,
-//        "password" =>   $site->password
-//      );
-//      $wp_post = array(
-//        "title"   => $scrape->result["title"],
-//        "content" => $scrape->result["html"]
-//      );
-//
-//      $wp_api = new WpAPI($site->site, $auth);
-//
-//      $wp_api->newPost($wp_post);
-    }
-  }
-
-  public function sendToWp($id)
-  {
-    $site = Sites::find($id);
-    $scrape = new Scrape\Scraper($site->site_to_fetch);
-    $scrape->getRssArray();
-
-    $auth    = array(
-      "login"    =>   $site->login,
-      "password" =>   $site->password
-    );
-
-    $wp_post = array(
-      "title"   => $scrape->result["title"],
-      "content" => $scrape->result["html"]
-    );
-
-    $wp_api = new WpAPI($site->site, $auth);
-
-    $wp_api->newPost($wp_post);
-
-  }
+   }
+ }
 }

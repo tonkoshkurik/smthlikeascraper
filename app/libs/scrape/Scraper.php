@@ -1,6 +1,7 @@
 <?php
 namespace App\Libs\Scrape;
 use andreskrey\Readability\HTMLParser;
+use Ixudra\Curl\Facades\Curl;
 
 class Scraper
 {
@@ -30,16 +31,16 @@ class Scraper
   }
 
   public function getRssArray(){
-    $html = file_get_contents($this->root_url );
-    $this->rss_url = $this->getRSSLocation($html, $target);
-    if(!$this->rss_url) $this->rss_url = $target . '?feed=rss2';
+    $html = $this->getHtml($this->root_url );
+    $this->rss_url = $this->getRSSLocation($html, $this->root_url);
+    if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
     $this->rss_array = download_parse_rss($this->rss_url);
-
+    return $this->rss_array;
   }
 
-  public function getContent($html){
-    $this->rss_array = download_parse_rss($this->rss_url);
-
+  public function getContent($link=''){
+    if(!$link) $link = $this->root_url
+    $html = $this->getHtml($link);
     $opts = [
       'maxTopCandidates' => 3, // Max amount of top level candidates
       'articleByLine' => false,

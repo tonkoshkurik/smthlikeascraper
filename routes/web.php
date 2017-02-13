@@ -29,4 +29,6 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/scrape/all', 'ScrapeController@all');
   Route::get('/scrape/save', 'ScrapeController@saveToWp');
 
+  Route::get('/scrape/sendToWp', 'ScrapeController@sendToWp')->name('sendToWp');
+
 });

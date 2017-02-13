@@ -6,6 +6,7 @@ class WpAPI
 {
   public $response;
   public $auth;
+  private $wpClient;
 
   public function  __construct($remote, $auth)
   {
@@ -15,12 +16,14 @@ class WpAPI
     $url .= $url_array["host"];
     $url .= "/xmlrpc.php";
     # Create client instance
-    $this->$wpClient = new \HieuLe\WordpressXmlrpcClient\WordpressClient();
+    $this->wpClient = new \HieuLe\WordpressXmlrpcClient\WordpressClient;
     # Set the credentials for the next requests
-    $wpClient->setCredentials($url, $auth["login"],  $auth["password"]);
+    $this->wpClient->setCredentials($url, $auth["login"],  $auth["password"]);
   }
+
   public function newPost($wp_post){
-    $this->response = $wpClient->newPost($wp_post["title"], $wp_post["content"]);
+    $response = $this->wpClient->newPost($wp_post["title"], $wp_post["content"]);
+    return $response;
   }
 
 

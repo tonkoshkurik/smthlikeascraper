@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      */
 
     protected $commands = [
-   //   \App\Console\Commands\WpPost::class
+     \App\Console\Commands\WpPost::class
     ];
 
     /**
