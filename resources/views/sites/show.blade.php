@@ -54,7 +54,12 @@
     </div>
     <!-- .modal-body -->
     <div class="modal-body text-center">
-      <img src="{{URL::asset('img/preloader.svg')}}" alt="loading...">
+      <form action="{{route('editpost')}}" id="editPostForm" method="POST">
+        <div class="inner">
+          <img src="{{URL::asset('img/preloader.svg')}}" alt="loading...">
+        </div>
+        {{csrf_field()}}
+      </form>
     </div>
     <!-- /.modal-body -->
     <div class="modal-footer">
@@ -84,12 +89,7 @@
               post_id: postID
             },
             success: function (data) {
-              // var post = jQuery.parseJSON(data);
-              // var editPostForm = '<form action="editPost">';
-              // editPostForm += '<input type="text" name="post_title" value="' + post.post_title +'" >';
-              // editPostForm += '<textare name="post_body">' + post.post_content + '</textarea>'
-              // editPostForm += '</form>';
-              $modal.find('.modal-body').html(data);
+              $modal.find('.modal-body .inner').html(data);
               tinymce.init({ selector:'textarea',
                   height: 500,
                   theme: 'modern',
@@ -107,11 +107,22 @@
           });
         });
         $modal.on('hidden.bs.modal', function () {
-          $modal.find('.modal-body').html('<img src="{{URL::asset('img/preloader.svg')}}" alt="loading...">');
+          $modal.find('.modal-body .inner').html('<img src="{{URL::asset('img/preloader.svg')}}" alt="loading...">');
         });
+        var frm = $('#editPostForm');
 
-        // $modal.on('shown.bs.modal', function(){
-        // });
+        frm.submit(function (ev) {
+            $.ajax({
+                type: 'POST',
+                url: '{{route('editpost')}}',
+                data: frm.serialize(),
+                success: function (data) {
+                    $modal.find('.modal-body .inner').html(data);
+                }
+            });
+
+            ev.preventDefault();
+        });
    });
 </script>
 <script src="//cloud.tinymce.com/stable/tinymce.min.js"></script>

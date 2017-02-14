@@ -94,6 +94,7 @@ class SitesController extends Controller
     public function getPost()
     {
       $site_id = request('site_id');
+      $post_id = request('post_id');
       $site = Sites::find($site_id);
       // $scrape = new Scrape\Scraper($site->site_to_fetch);
 
@@ -105,29 +106,39 @@ class SitesController extends Controller
 
       $wp_api = new WpAPI($site->site, $auth);
 
-      $post_data = $wp_api->getPost(request('post_id'));
-
-      $edit_link = route('editpost');
+      $post_data = $wp_api->getPost($post_id);
       
       $post_html = <<<EOL
-        <form action="$edit_link" method="POST">
+          <input type="hidden" name="site_id" value="$site_id">
+          <input type="hidden" name="post_id" value="$post_id">
           <div class="form-group">
             <input type="text" name="post_title" class="form-control" value="$post_data[post_title]" >
           </div>
           <div class="form-group">
-            <textarea class="form-control" name="post_body">$post_data[post_content]</textarea>
+            <textarea class="form-control" name="post_content">$post_data[post_content]</textarea>
           </div>
           <input type="submit" value="Update Post">
-        </form>
 EOL;
-
       return $post_html;
-
     }
 
     public function editpost()
     {
-      
+      $site_id = request('site_id');
+      $post_id = request('post_id');
+      $site = Sites::find($site_id);
+      $auth    = array(
+        "login"    =>   $site->login,
+        "password" =>   $site->password
+      );
+      $content = array(
+        'post_title' => request('post_title'),
+        'post_content' => request('post_content')
+        );
+      $wp_api = new WpAPI($site->site, $auth);
+      $response = $wp_api->editpost($post_id, $content);
+      $response ? $response = 'Success' : $response = 'Failed';
+      return $response;
     }
 
     /**

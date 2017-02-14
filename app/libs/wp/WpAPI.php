@@ -29,6 +29,10 @@ class WpAPI
     return $this->wpClient->getPost($id);
   }
 
+  public function editPost($id, $content){
+    return $this->wpClient->editPost($id, $content);
+  }
+
 
   private function curl($url, $header, $body)
   {
