@@ -39,7 +39,7 @@ class Scraper
   }
 
   public function getContent($link=''){
-    if(!$link) $link = $this->root_url
+    if($link==='') $link = $this->root_url;
     $html = $this->getHtml($link);
     $opts = [
       'maxTopCandidates' => 3, // Max amount of top level candidates
