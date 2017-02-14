@@ -23,12 +23,16 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::get('/sites/show/{id}', 'SitesController@show')->name('showFetchResult');
   
-  Route::get('/sites/connect/{id}', 'SitesController@connectToWp')->name('connectToWp');
+  // Route::get('/sites/connect/{id}', 'SitesController@connectToWp')->name('connectToWp');
   Route::get('/callback', 'SitesController@callback');
 
   Route::get('/scrape/all', 'ScrapeController@all');
   Route::get('/scrape/save', 'ScrapeController@saveToWp');
 
   Route::get('/scrape/sendToWp', 'ScrapeController@sendToWp')->name('sendToWp');
+
+  Route::post('/getpost', 'SitesController@getPost');
+  Route::post('/editpost', 'SitesController@editpost')->name('editpost');
+
 
 });

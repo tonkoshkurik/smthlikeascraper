@@ -38,8 +38,7 @@ class WpPost extends Command
           Scraped::firstOrCreate([
             'site_id' =>  $result["id"],
             'link'    =>  $scraped[$index]["links"][$i],
-            'title'   =>  $scraped[$index]["title"][$i],
-            'saved'   => 0
+            'title'   =>  $scraped[$index]["title"][$i]
             ]);
         }
         $index++;

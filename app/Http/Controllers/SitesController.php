@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Sites;
+use App\Scraped;
 use Validator;
 use App\Libs\Scrape;
 use App\Libs\Wp\WpAPI;
@@ -16,6 +17,7 @@ class SitesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {
       $sites = Sites::all();
@@ -77,34 +79,57 @@ class SitesController extends Controller
     public function show($id)
     {
       $site = Sites::find($id);
-      $scrape = new Scrape\Scraper($site->site_to_fetch);
+      // $scrape = new Scrape\Scraper($site->site_to_fetch);
+      $fetch = Scraped::where('site_id', $id)->orderBy('id', 'desc')->get();
+
+      // dd($fetch);
 
       return view('sites.show', [
         "site" => $site,
-        "RSS_DISPLAY" => $scrape->result["html"],
+        "fetch" => $fetch
+        // "RSS_DISPLAY" => $scrape->result["html"],
       ]);
     }
 
-    public function sendToWp($id)
+    public function getPost()
     {
-      $site = Sites::find($id);
-      $scrape = new Scrape\Scraper($site->site_to_fetch);
+      $site_id = request('site_id');
+      $site = Sites::find($site_id);
+      // $scrape = new Scrape\Scraper($site->site_to_fetch);
 
       $auth    = array(
         "login"    =>   $site->login,
         "password" =>   $site->password
       );
 
-      $wp_post = array(
-        "title"   => $scrape->result["title"],
-        "content" => $scrape->result["html"]
-      );
 
       $wp_api = new WpAPI($site->site, $auth);
 
-      $wp_api->newPost($wp_post);
+      $post_data = $wp_api->getPost(request('post_id'));
+
+      $edit_link = route('editpost');
+      
+      $post_html = <<<EOL
+        <form action="$edit_link" method="POST">
+          <div class="form-group">
+            <input type="text" name="post_title" class="form-control" value="$post_data[post_title]" >
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" name="post_body">$post_data[post_content]</textarea>
+          </div>
+          <input type="submit" value="Update Post">
+        </form>
+EOL;
+
+      return $post_html;
 
     }
+
+    public function editpost()
+    {
+      
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

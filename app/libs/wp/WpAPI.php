@@ -25,6 +25,9 @@ class WpAPI
     $response = $this->wpClient->newPost($wp_post["title"], $wp_post["content"]);
     return $response;
   }
+  public function getPost($id){
+    return $this->wpClient->getPost($id);
+  }
 
 
   private function curl($url, $header, $body)
