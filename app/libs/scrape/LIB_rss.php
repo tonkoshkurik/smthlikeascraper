@@ -31,18 +31,15 @@ RETURNS:
 		The parsed RSS feed                                             
 ***********************************************************************/
 
-function download_parse_rss($target)
+function download_parse_rss($feed)
     {
-    # download tge rss page
-    $news = http_get($target, "");
-
     
     # Parse title & copyright notice
-    $rss_array['TITLE'] = return_between($news['FILE'], "<title>", "</title>", EXCL);
-    $rss_array['COPYRIGHT'] = return_between($news['FILE'], "<copyright>", "</copyright>", EXCL);
+    $rss_array['TITLE'] = return_between($feed, "<title>", "</title>", EXCL);
+    $rss_array['COPYRIGHT'] = return_between($feed, "<copyright>", "</copyright>", EXCL);
 
     # Parse the items
-    $item_array = parse_array($news['FILE'], "<item>", "</item>");
+    $item_array = parse_array($feed, "<item>", "</item>");
     for($xx=0; $xx<count($item_array); $xx++)
         {
         $rss_array['ITITLE'][$xx] = return_between($item_array[$xx], "<title>", "</title>", EXCL);

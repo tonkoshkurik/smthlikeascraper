@@ -19,6 +19,7 @@ class CreateScrapedsTable extends Migration
             $table->string('link')->unique();
             $table->string('title');
             $table->integer('saved')->unsigned()->nullable();
+            $table->integer('bulka')->unsigned()->nullable();
             $table->timestamps();
         });
     }

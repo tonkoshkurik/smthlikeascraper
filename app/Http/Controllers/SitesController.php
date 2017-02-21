@@ -107,6 +107,8 @@ class SitesController extends Controller
       $wp_api = new WpAPI($site->site, $auth);
 
       $post_data = $wp_api->getPost($post_id);
+
+      dd($post_data);
       
       $post_html = <<<EOL
           <input type="hidden" name="site_id" value="$site_id">

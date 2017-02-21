@@ -26,7 +26,10 @@ class Scraper
   }
 
   public function getHtml($url){
+    // $proxy = ;
     return Curl::to($url)
+      ->allowRedirect()
+      // ->withOption('PROXY', )
       ->get();
   }
 
@@ -34,7 +37,8 @@ class Scraper
     $html = $this->getHtml($this->root_url );
     $this->rss_url = $this->getRSSLocation($html, $this->root_url);
     if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
-    $this->rss_array = download_parse_rss($this->rss_url);
+    $rss_feed = $this->getHtml($this->rss_url);
+    $this->rss_array = download_parse_rss($rss_feed);
     return $this->rss_array;
   }
 
@@ -55,6 +59,43 @@ class Scraper
     $readability = new HTMLParser($opts);
     return $readability->parse($html);
   }
+
+  public function sendLinkTo($urls)
+  {
+    $apikey = '7a82fd58be6aef63bb98cc4c68062c14';
+    return $this->send_to_bulkaddurl($apikey, $urls);
+  }
+
+  private function send_to_bulkaddurl($apikey, $urls) {
+  $url_api = 'http://bulkaddurl.com/api';
+
+  $urls = implode(PHP_EOL, $urls);
+
+  $fields = array(
+      'urls'=>$urls,
+      'apikey'=>$apikey,
+      'name'=>'Adding task with scraper api',
+    );
+
+  $fields_string = http_build_query($fields);
+
+  //open connection
+  $ch = curl_init();
+
+  //set the url, number of POST vars, POST data
+  curl_setopt($ch,CURLOPT_URL,$url_api);
+  curl_setopt($ch,CURLOPT_POST, count($fields));
+  curl_setopt($ch,CURLOPT_POSTFIELDS,$fields_string);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+  //execute post
+  $result = curl_exec($ch);
+  //print $result;
+  //die();
+
+  $result = json_decode($result, true);
+  return $result;
+  } 
 
   /**
    * @link http://keithdevens.com/weblog/archive/2002/Jun/03/RSSAuto-DiscoveryPHP

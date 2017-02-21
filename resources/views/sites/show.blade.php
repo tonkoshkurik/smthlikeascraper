@@ -15,6 +15,7 @@
         <div class="panel-body">
           <p>Scratch results from site: <b>{{ $site->site_to_fetch }} </b></p>
           {{--                    {{ dd(get_defined_vars()) }} --}}
+          @if(count($fetch))
           <table class="table">
             <thead>
              <tr>
@@ -28,7 +29,7 @@
               <tr>
                <td><a rel="noreferrer" href="{{ $fetched->link }}">{{ $fetched->title }}</a></td>
                <td>
-                @if($fetched->saved !== 0)
+                @if($fetched->saved != '')
                  <button class="btn btn-primary editpost" data-id="{{ $fetched->saved }}"  data-toggle="modal" data-target="#editPost">Edit post</button>
                 @else
                   <span class="warning">Fetch error</span>
@@ -39,6 +40,9 @@
             @endforeach 
            </tbody>
          </table>
+         @else 
+          <h4 class="alert bg-warning">Have not any fetched post yet</h4>
+         @endif
          {{-- {!! html_entity_decode($RSS_DISPLAY) !!} --}}
        </div>
      </div>

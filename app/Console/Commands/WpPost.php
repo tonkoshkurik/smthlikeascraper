@@ -51,7 +51,7 @@ class WpPost extends Command
     }
 
     // Send all new posts to wp
-    $newScraped = Scraped::where('saved', 0)->get();
+    $newScraped = Scraped::whereNull('saved')->get();
     foreach ($newScraped as $scraped) {
       $post = new Scrape\Scraper($scraped->link);
       $p_content = $post->getContent();
@@ -80,6 +80,28 @@ class WpPost extends Command
           echo "<br>";
         }
       }
+    }
+    $saved = Scraped::whereNotNull('saved')->whereNull('bulka')->get();
+    $links = array();
+    foreach ($saved as $v) {
+      $site = Sites::find($v->site_id);
+      $auth    = array(
+         "login"    =>   $site->login,
+         "password" =>   $site->password
+         );
+      $post_id = $v->saved;
+      $wp_api = new WpAPI($site->site, $auth);
+      $post = $wp_api->getpost($post_id);
+      $link = $post["link"];
+      if($link){
+        $scraped_id = $v->id;
+        $links[] = $link;
+        Scraped::where('id', $scraped_id)->update(['bulka' => 1]);
+      }
+    }
+    if(count($links)){
+       $bulkaSender = new Scrape\Scraper();
+       $bulkaSender->sendLinkTo($links);
     }
   }
 
