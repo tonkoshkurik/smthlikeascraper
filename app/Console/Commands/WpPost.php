@@ -72,8 +72,8 @@ class WpPost extends Command
           Scraped::where('title', $scraped->title)
                   ->where('link', $scraped->link)
                   ->update(['saved' => $post_id]);
-          var_dump($post_id);
-          var_dump($wp_post);
+//          var_dump($post_id);
+//          var_dump($wp_post);
         } else {
           echo "update failed with post id: <br>";
           var_dump($post_id);
@@ -81,7 +81,7 @@ class WpPost extends Command
         }
       }
     }
-    $saved = Scraped::whereNotNull('saved')->whereNull('bulka')->get();
+    $saved = Scraped::whereNotNull('saved')->where('saved', '!=' , 0)->whereNull('bulka')->get();
     $links = array();
     foreach ($saved as $v) {
       $site = Sites::find($v->site_id);

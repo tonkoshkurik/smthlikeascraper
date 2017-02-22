@@ -11,7 +11,7 @@ class WpAPI
   public function  __construct($remote, $auth)
   {
     $url_array = parse_url($remote);
-    $url  = $url_array["scheme"] ? $url_array["scheme"] : "http";
+    $url  = isset($url_array["scheme"]) ? $url_array["scheme"] : "http";
     $url .= "://";
     $url .= $url_array["host"];
     $url .= "/xmlrpc.php";
@@ -31,6 +31,12 @@ class WpAPI
 
   public function editPost($id, $content){
     return $this->wpClient->editPost($id, $content);
+  }
+  public function getPosts(){
+    return $this->wpClient->getPosts();
+  }
+  public function getAuth(){
+    return $this->wpClient->getAuth();
   }
 
 

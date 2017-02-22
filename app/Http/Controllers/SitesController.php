@@ -43,31 +43,99 @@ class SitesController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request);
+      // dd($request);
       $this->validate($request, [
         'site' => 'unique:sites,site'
         ]);
+
       $validator = Validator::make($request->all(), [
         'site' => 'required|unique:sites,site|max:255',
         'site_to_fetch' => 'required',
         'login' => 'required',
         'password' => 'required'
         ]);
+
       if ($validator->fails()) {
         return redirect('sites/create')
         ->withErrors($validator)
         ->withInput();
       }
+      // HERE WE FETCH CURRENT POSTS to avoid parsing old
+
+      $cheked = $this->checkAuth($request);
+
+      if(is_array($cheked)){
+//      dd($cheked);
+
+        $site = filter_var($request["site"], FILTER_VALIDATE_URL);
+        $site_to_fetch = filter_var($request["site_to_fetch"], FILTER_VALIDATE_URL);
+
+        $sites = new Sites();
+
+        $sites->site = $site;
+        $sites->site_to_fetch = $site_to_fetch;
+        $sites->login = $request["login"];
+        $sites->password = $request["password"];
+
+        $sites->save();
+
+        $site_id = $sites->id;
+
+        foreach ($cheked as $v)
+        {
+          Scraped::firstOrCreate([
+            'site_id' =>  $site_id,
+            'link'    =>  $v["link"],
+            'title'   =>  $v["title"],
+            'saved'   => 0
+          ]);
+        }
+
+        return redirect('sites');
+      } else {
+        return $cheked;
+      }
+    }
+
+    private function checkAuth($request)
+    {
       $site = filter_var($request["site"], FILTER_VALIDATE_URL);
       $site_to_fetch = filter_var($request["site_to_fetch"], FILTER_VALIDATE_URL);
-      $sites = new Sites();
-      $sites->site = $site;
-      $sites->site_to_fetch = $site_to_fetch;
-      $sites->login = $request["login"];
-      $sites->password = $request["password"];
 
-      $sites->save();
-      return redirect('sites');
+      if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $site)) {
+        return "Site URL is invalid, url should have full path with protocol: http://example.com";
+      }
+      if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $site_to_fetch)) {
+        return "Fetching site URL is invalid, url should have full path with protocol: http://example.com";
+      }
+
+      $auth    = array(
+        "login"    =>   $request["login"],
+        "password" =>   $request["password"]
+      );
+
+      $wp_api = new WpAPI($site, $auth);
+
+      try {
+        $wp_api->getPosts();
+      } catch(\Exception $exception) {
+        dd('invalid wordpress login');
+      }
+
+      $scrape = new Scrape\Scraper($site_to_fetch);
+      $scrape->getRssArray();
+      $rss = array();
+      if(isset($scrape->rss_array["ILINK"])){
+        $scraped["links"] = $scrape->rss_array["ILINK"];
+        $scraped["title"] = $scrape->rss_array["ITITLE"];
+        for($i=0; $i<count($scraped["links"]); $i++){
+          $rss[] = [
+            'link'    =>  $scraped["links"][$i],
+            'title'   =>  $scraped["title"][$i]
+          ];
+        }
+      }
+      return $rss;
     }
 
     /**
@@ -108,8 +176,6 @@ class SitesController extends Controller
 
       $post_data = $wp_api->getPost($post_id);
 
-      dd($post_data);
-      
       $post_html = <<<EOL
           <input type="hidden" name="site_id" value="$site_id">
           <input type="hidden" name="post_id" value="$post_id">

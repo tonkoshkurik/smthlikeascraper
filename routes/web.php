@@ -14,6 +14,10 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::get('/dashboard', 'SitesController@index');
 
+  Route::get('/settings', 'HomeController@settings');
+
+  Route::post('/settings', 'HomeController@store');
+
   Route::post('/sites/create', 'SitesController@store')->name("addsite");
 
   Route::get('/sites', 'SitesController@index')->name("sites");
