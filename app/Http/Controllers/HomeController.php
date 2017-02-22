@@ -19,8 +19,10 @@ class HomeController extends Controller
 
     public function settings()
     {
+
       $settings = Setting::all();
-      dd($settings);
+      return view('settings');
+//      dd($settings);
     }
 
     public function store($request)
