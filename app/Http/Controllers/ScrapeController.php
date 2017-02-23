@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use \App\Sites;
-use \App\Scraped;
+use App\Sites;
+use App\Scraped;
 use App\Libs\Scrape;
 use App\Libs\Wp\WpAPI;
 use App\FetchError;

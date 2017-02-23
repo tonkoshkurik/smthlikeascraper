@@ -1,5 +1,6 @@
 <?php
 namespace App\Libs\Scrape;
+
 use andreskrey\Readability\HTMLParser;
 use Ixudra\Curl\Facades\Curl;
 
@@ -39,10 +40,15 @@ class Scraper
       ->get();
   }
 
-  public function getRssArray(){
-    $html = $this->getHtml($this->root_url );
-    dd($html);
-    $this->rss_url = $this->getRSSLocation($html, $this->root_url);
+  public function getRssArray($url=''){
+    if(!$url==='') $url = $this->root_url;
+    $html = $this->getHtml($url);
+    try {
+      $this->rss_url = $this->getRSSLocation($html, $url);
+    } catch (\Exception $ex)
+    {
+      dd('No feeds were found for this URL');
+    }
     if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
     $rss_feed = $this->getHtml($this->rss_url);
     $this->rss_array = download_parse_rss($rss_feed);
@@ -98,8 +104,6 @@ class Scraper
 
   //execute post
   $result = curl_exec($ch);
-  //print $result;
-  //die();
 
   $result = json_decode($result, true);
   return $result;

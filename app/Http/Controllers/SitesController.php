@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use App\Sites;
 use App\Scraped;
 use Validator;
-use App\Libs\Scrape;
-use App\Libs\Wp\WpAPI;
+use \App\Libs\Scrape;
+use \App\Libs\Wp\WpAPI;
 //use Andreskrey\Readability\HTMLParser;
 
 class SitesController extends Controller
@@ -17,6 +17,7 @@ class SitesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $scraper;
 
     public function index()
     {
@@ -35,7 +36,12 @@ class SitesController extends Controller
       return view('sites.create');
     }
 
-    /**
+    public function __construct()
+    {
+      $this->scraper =  new Scrape\Scraper();
+    }
+
+  /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -65,7 +71,7 @@ class SitesController extends Controller
       $cheked = $this->checkAuth($request);
 
       if(is_array($cheked)){
-//      dd($cheked);
+//       dd($cheked);
 
         $site = filter_var($request["site"], FILTER_VALIDATE_URL);
         $site_to_fetch = filter_var($request["site_to_fetch"], FILTER_VALIDATE_URL);
@@ -114,7 +120,19 @@ class SitesController extends Controller
         "password" =>   $request["password"]
       );
 
-      $wp_api = new WpAPI($site, $auth);
+      if(substr($site, -1) == '/') {
+        $site = substr($site, 0, -1);
+      }
+      $url_array = parse_url($site);
+      $url  = isset($url_array["scheme"]) ? $url_array["scheme"] : "http";
+      $url .= "://";
+      $url .= isset($url_array["host"]) ? $url_array["host"] : $site;
+      $url .= "/xmlrpc.php";
+
+      $wp_api =  new \HieuLe\WordpressXmlrpcClient\WordpressClient;
+
+      # Set the credentials for the next requests
+      $wp_api->setCredentials($url, $auth["login"],  $auth["password"]);
 
       try {
         $wp_api->getPosts();
@@ -122,12 +140,11 @@ class SitesController extends Controller
         dd('invalid wordpress login');
       }
 
-      $scrape = new Scrape\Scraper($site_to_fetch);
-      $scrape->getRssArray();
+      $this->scraper->getRssArray($site_to_fetch);
       $rss = array();
-      if(isset($scrape->rss_array["ILINK"])){
-        $scraped["links"] = $scrape->rss_array["ILINK"];
-        $scraped["title"] = $scrape->rss_array["ITITLE"];
+      if(isset($this->scraper->rss_array["ILINK"])){
+        $scraped["links"] = $this->scraper->rss_array["ILINK"];
+        $scraped["title"] = $this->scraper->rss_array["ITITLE"];
         for($i=0; $i<count($scraped["links"]); $i++){
           $rss[] = [
             'link'    =>  $scraped["links"][$i],

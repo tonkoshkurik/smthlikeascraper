@@ -10,11 +10,14 @@ class WpAPI
 
   public function  __construct($remote, $auth)
   {
+    if(substr($remote, -1) == '/') {
+      $remote = substr($remote, 0, -1);
+    }
     $url_array = parse_url($remote);
     $url  = isset($url_array["scheme"]) ? $url_array["scheme"] : "http";
     $url .= "://";
-    $url .= $url_array["host"];
-    $url .= "/xmlrpc.php";
+    $url .= isset($url_array["host"]) ? $url_array["host"] : $remote;
+    $url .= "/xmlrpc.php";;
     # Create client instance
     $this->wpClient = new \HieuLe\WordpressXmlrpcClient\WordpressClient;
     # Set the credentials for the next requests
@@ -37,22 +40,6 @@ class WpAPI
   }
   public function getAuth(){
     return $this->wpClient->getAuth();
-  }
-
-
-  private function curl($url, $header, $body)
-  {
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL,             $url );
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER,  1    );
-    curl_setopt($ch, CURLOPT_POST,            1    );
-    curl_setopt($ch, CURLOPT_POSTFIELDS,      $body);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,      array($header, 'Content-Type: multipart/form-data'));
-
-    $result=curl_exec ($ch);
-
-    return $result;
   }
 
 }
