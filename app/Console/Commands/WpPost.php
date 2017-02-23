@@ -10,9 +10,11 @@ use \App\FetchError;
 
 class WpPost extends Command
 {
+
   protected $signature = 'wp:post';
 
   protected $description = 'Send post to wp';
+
 
   public function handle()
   {
@@ -69,11 +71,11 @@ class WpPost extends Command
         $wp_api = new WpAPI($site->site, $auth);
         $post_id = $wp_api->newPost($wp_post);
         if($post_id){
+
           Scraped::where('title', $scraped->title)
                   ->where('link', $scraped->link)
                   ->update(['saved' => $post_id]);
-//          var_dump($post_id);
-//          var_dump($wp_post);
+
         } else {
           echo "update failed with post id: <br>";
           var_dump($post_id);

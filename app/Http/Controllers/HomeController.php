@@ -20,14 +20,20 @@ class HomeController extends Controller
     public function settings()
     {
 
-      $settings = Setting::all();
-      return view('settings');
-//      dd($settings);
+      $settings = Setting::find(1);
+      return view('settings', $settings);
     }
 
-    public function store($request)
+    public function store(Request $request)
     {
-      dd($request);
+      $s = Setting::find(1);
+
+      $s->update([
+        'proxy'   => $request["proxy"],
+        'bulkapi' => $request["bulkapi"]
+      ]);
+
+      return redirect('settings');
     }
 
     /**

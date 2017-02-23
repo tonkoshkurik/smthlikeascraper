@@ -9,6 +9,8 @@ class Scraper
   public $rss_url;
   public $result = array();
   public $root_url;
+  protected $settings;
+
   # Include libraries
   public function __construct($target='') // or any other method
   {
@@ -16,6 +18,8 @@ class Scraper
     require_once("LIB_http.php");
     require_once("LIB_parse.php");
     require_once("LIB_rss.php");
+
+    $this->settings = \App\Setting::find(1);
 //    $html = file_get_contents($target);
 //    $this->rss_url = $this->getRSSLocation($html, $target);
 //    if(!$this->rss_url) $this->rss_url = $target . '?feed=rss2';
@@ -26,15 +30,18 @@ class Scraper
   }
 
   public function getHtml($url){
-    // $proxy = ;
-    return Curl::to($url)
+    // $settings = \App\Settings::find(1);
+     $proxies = explode(PHP_EOL, $this->settings->proxy);
+     $proxy = $proxies[array_rand($proxies)];
+     return Curl::to($url)
       ->allowRedirect()
-      // ->withOption('PROXY', )
+      ->withOption('PROXY', trim($proxy))
       ->get();
   }
 
   public function getRssArray(){
     $html = $this->getHtml($this->root_url );
+    dd($html);
     $this->rss_url = $this->getRSSLocation($html, $this->root_url);
     if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
     $rss_feed = $this->getHtml($this->rss_url);
@@ -62,11 +69,12 @@ class Scraper
 
   public function sendLinkTo($urls)
   {
-    $apikey = '7a82fd58be6aef63bb98cc4c68062c14';
+    $apikey = $this->settings->bulkapi;
     return $this->send_to_bulkaddurl($apikey, $urls);
   }
 
   private function send_to_bulkaddurl($apikey, $urls) {
+
   $url_api = 'http://bulkaddurl.com/api';
 
   $urls = implode(PHP_EOL, $urls);

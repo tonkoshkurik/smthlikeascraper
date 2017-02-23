@@ -1,11 +1,4 @@
 @extends('layouts.app')
-{{--         "id" => 30
-      "site_id" => 3
-      "link" => "http://nstacommunities.org/blog/2017/02/04/students-teaching-science-to-younger-students/"
-      "title" => "Students Teaching Science to Younger Students"
-      "saved" => 94
-      "created_at" => "2017-02-13 10:02:28"
-      "updated_at" => "2017-02-13 14:19:29"  --}}
 @section('content')
 <div class="container">
   <div class="row">
