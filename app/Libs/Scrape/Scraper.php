@@ -21,13 +21,12 @@ class Scraper
     require_once("LIB_rss.php");
 
     $this->settings = \App\Setting::find(1);
-//    $html = file_get_contents($target);
-//    $this->rss_url = $this->getRSSLocation($html, $target);
-//    if(!$this->rss_url) $this->rss_url = $target . '?feed=rss2';
-//    $this->rss_array = download_parse_rss($this->rss_url);
+    //    $html = file_get_contents($target);
+    //    $this->rss_url = $this->getRSSLocation($html, $target);
+    //    if(!$this->rss_url) $this->rss_url = $target . '?feed=rss2';
+    //    $this->rss_array = download_parse_rss($this->rss_url);
     // $this->rss_display = display_rss_array($this->rss_array);
     // $html = file_get_contents($this->rss_array["ILINK"][0]);
-
   }
 
   public function getHtml($url){
@@ -42,7 +41,24 @@ class Scraper
 
   public function getRssArray($url=''){
     if(!$url==='') $url = $this->root_url;
+    if(is_array($this->root_url)){
+      foreach ($this->root_url as $url) {
+        $html = $this->getHtml($url);
+        try {
+          $this->rss_url = $this->getRSSLocation($html, $url);
+        } catch (\Exception $ex)
+        {
+          echo('No feeds were found for this URL');
+        }
+        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
+        $rss_feed = $this->getHtml($this->rss_url);
+        $this->rss_array[] = download_parse_rss($rss_feed);
+      }
+      return $this->rss_array;
+    }
+
     $html = $this->getHtml($url);
+    
     try {
       $this->rss_url = $this->getRSSLocation($html, $url);
     } catch (\Exception $ex)

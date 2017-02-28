@@ -23,6 +23,7 @@ class WpPost extends Command
 
   public static function wppost()
   {
+    $time_start = microtime(true); 
     $sites = Sites::all();
     $result = array();
     $index = 0;
@@ -30,25 +31,41 @@ class WpPost extends Command
       $scraped = array();
       $result["id"]        = $site->id;
       $result["fetched"]   = $site->site_to_fetch;
-      $scrape = new Scrape\Scraper($site->site_to_fetch);
-      $scrape->getRssArray();
 
-      if(isset($scrape->rss_array["ILINK"])){
-        $scraped[$index]["links"] = $scrape->rss_array["ILINK"];
-        $scraped[$index]["title"] = $scrape->rss_array["ITITLE"];
-        for($i=0; $i<count($scraped[$index]["links"]); $i++){
-          Scraped::firstOrCreate([
-            'site_id' =>  $result["id"],
-            'link'    =>  $scraped[$index]["links"][$i],
-            'title'   =>  $scraped[$index]["title"][$i]
+      // $fetching_array = explode(PHP_EOL, $site->site_to_fetch);
+
+      $fetching_array = array($site->site_to_fetch, 'http://homegrownandhealthy.com' );
+
+      $scrape = new Scrape\Scraper($fetching_array);
+      $rss_array = $scrape->getRssArray();
+      $time_end = microtime(true);
+
+      //dividing with 60 will give the execution time in minutes other wise seconds
+      $execution_time = ($time_end - $time_start)/60;
+
+      //execution time of the script
+      echo '<b>Total Execution Time:</b> '.$execution_time. " Mins \n ";
+
+      foreach ($rss_array as $scrape) {
+        if(isset($scrape->rss_array["ILINK"]))  {
+          $scraped[$index]["links"] = $scrape->rss_array["ILINK"];
+          $scraped[$index]["title"] = $scrape->rss_array["ITITLE"];
+          for($i=0; $i<count($scraped[$index]["links"]); $i++) {
+            // Scraped::firstOrCreate([
+            //   'site_id' =>  $result["id"],
+            //   'link'    =>  $scraped[$index]["links"][$i],
+            //   'title'   =>  $scraped[$index]["title"][$i]
+            //   ]);
+            var_dump($scraped[$index]["links"][$i]);
+          }
+          $index++;
+        } else {
+          var_dump($scrape);
+          FetchError::updateOrCreate([
+            'site_id'   =>  $result["id"],
+            'rss_url'   =>  $scrape->rss_url
             ]);
         }
-        $index++;
-      } else {
-        FetchError::updateOrCreate([
-          'site_id'   =>  $result["id"],
-          'rss_url'   =>  $scrape->rss_url
-          ]);
       }
     }
 
