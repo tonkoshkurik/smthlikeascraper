@@ -14,7 +14,7 @@
             @foreach ($sites as $site)
             <tr>
              <td><a href="{{ $site->site }}" rel="noreferrer">{{ $site->site }}</a></td>
-             <td><a href="{{ $site->site_to_fetch }}" rel="noreferrer">{{ $site->site_to_fetch }}</a></td>
+             <td>{!! nl2br($site->site_to_fetch) !!}</td>
              <td><a href="{{ route('showFetchResult', $site->id) }}" class="btn btn-primary">Check result</a></td>
              <td><a href="{{ route('siteDelete', $site->id) }}" class="btn btn-warning">Delete</a></td>   
            </tr>

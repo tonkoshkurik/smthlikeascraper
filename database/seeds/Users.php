@@ -16,8 +16,8 @@ class Users extends Seeder
         //Create new User with name - Admin
         $admin = new User();
         $admin->name = 'Admin';
-        $admin->email = 'admin@admin.com';
-        $admin->password = bcrypt('123456');
+        $admin->email = 'support@ranknetworks.com';
+        $admin->password = bcrypt('Cr3at1v3');
         $admin->save();
     }
 }

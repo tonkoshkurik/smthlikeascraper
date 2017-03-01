@@ -40,7 +40,11 @@ class Scraper
   }
 
   public function getRssArray($url=''){
-    if(!$url==='') $url = $this->root_url;
+    if( !$url == '') {
+      $this->root_url = $url;
+      // dd('hi');
+    }
+    
     if(is_array($this->root_url)){
       foreach ($this->root_url as $url) {
         $html = $this->getHtml($url);
@@ -55,20 +59,19 @@ class Scraper
         $this->rss_array[] = download_parse_rss($rss_feed);
       }
       return $this->rss_array;
+    } else {
+      $html = $this->getHtml($url);
+      try {
+        $this->rss_url = $this->getRSSLocation($html, $url);
+      } catch (\Exception $ex)
+      {
+        dd('No feeds were found for this URL');
+      }
+      if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
+      $rss_feed = $this->getHtml($this->rss_url);
+      $this->rss_array = download_parse_rss($rss_feed);
+      return $this->rss_array;
     }
-
-    $html = $this->getHtml($url);
-    
-    try {
-      $this->rss_url = $this->getRSSLocation($html, $url);
-    } catch (\Exception $ex)
-    {
-      dd('No feeds were found for this URL');
-    }
-    if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
-    $rss_feed = $this->getHtml($this->rss_url);
-    $this->rss_array = download_parse_rss($rss_feed);
-    return $this->rss_array;
   }
 
   public function getContent($link=''){

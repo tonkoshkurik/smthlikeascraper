@@ -74,13 +74,13 @@ class SitesController extends Controller
 //       dd($cheked);
 
         $site = filter_var($request["site"], FILTER_VALIDATE_URL);
-        $site_to_fetch = filter_var($request["site_to_fetch"], FILTER_VALIDATE_URL);
+        // $site_to_fetch = $request["site_to_fetch"];
 
         $sites = new Sites();
 
         $sites->site = $site;
-        $sites->site_to_fetch = $site_to_fetch;
-        $sites->login = $request["login"];
+        $sites->site_to_fetch = $request["site_to_fetch"];
+        $sites->login = $request["site_to_fetch"];
         $sites->password = $request["password"];
 
         $sites->save();
@@ -106,13 +106,23 @@ class SitesController extends Controller
     private function checkAuth($request)
     {
       $site = filter_var($request["site"], FILTER_VALIDATE_URL);
-      $site_to_fetch = filter_var($request["site_to_fetch"], FILTER_VALIDATE_URL);
 
       if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $site)) {
         return "Site URL is invalid, url should have full path with protocol: http://example.com";
       }
-      if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $site_to_fetch)) {
-        return "Fetching site URL is invalid, url should have full path with protocol: http://example.com";
+
+      $f_array = array();
+      $fetching_array = explode(PHP_EOL, $request["site_to_fetch"]);
+      
+      foreach ($fetching_array as $site_to_fetch) {
+        # code...
+        $site_to_fetch = trim(preg_replace('/\s\s+/', ' ', $site_to_fetch));
+        // dd($site_to_fetch);
+        $site_to_fetch = filter_var($site_to_fetch, FILTER_VALIDATE_URL);
+        $f_array[] = $site_to_fetch;
+        if (!preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i", $site_to_fetch)) {
+          return "Fetching site URL is invalid, url should have full path with protocol: http://example.com";
+        }
       }
 
       $auth    = array(
@@ -123,6 +133,7 @@ class SitesController extends Controller
       if(substr($site, -1) == '/') {
         $site = substr($site, 0, -1);
       }
+
       $url_array = parse_url($site);
       $url  = isset($url_array["scheme"]) ? $url_array["scheme"] : "http";
       $url .= "://";
@@ -139,20 +150,22 @@ class SitesController extends Controller
       } catch(\Exception $exception) {
         dd('invalid wordpress login');
       }
-
-      $this->scraper->getRssArray($site_to_fetch);
+      
+      $rss_array = $this->scraper->getRssArray($f_array);
       $rss = array();
-      if(isset($this->scraper->rss_array["ILINK"])){
-        $scraped["links"] = $this->scraper->rss_array["ILINK"];
-        $scraped["title"] = $this->scraper->rss_array["ITITLE"];
-        for($i=0; $i<count($scraped["links"]); $i++){
-          $rss[] = [
-            'link'    =>  $scraped["links"][$i],
-            'title'   =>  $scraped["title"][$i]
-          ];
+      foreach ($rss_array as $scrape) {
+        if(isset($scrape["ILINK"])){
+          $scraped["links"] = $scrape["ILINK"];
+          $scraped["title"] = $scrape["ITITLE"];
+          for($i=0; $i<count($scraped["links"]); $i++){
+            $rss[] = [
+              'link'    =>  $scraped["links"][$i],
+              'title'   =>  $scraped["title"][$i]
+            ];
+          }
         }
       }
-      return $rss;
+      return $rss; 
     }
 
     /**

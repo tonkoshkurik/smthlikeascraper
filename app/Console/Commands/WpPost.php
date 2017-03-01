@@ -32,9 +32,10 @@ class WpPost extends Command
       $result["id"]        = $site->id;
       $result["fetched"]   = $site->site_to_fetch;
 
-      // $fetching_array = explode(PHP_EOL, $site->site_to_fetch);
+      $fetching_array = explode(PHP_EOL, $site->site_to_fetch);
 
-      $fetching_array = array($site->site_to_fetch, 'http://homegrownandhealthy.com' );
+      // dd($fetching_array);
+      // $fetching_array = array($site->site_to_fetch, 'http://homegrownandhealthy.com' );
 
       $scrape = new Scrape\Scraper($fetching_array);
       $rss_array = $scrape->getRssArray();
@@ -47,15 +48,15 @@ class WpPost extends Command
       echo '<b>Total Execution Time:</b> '.$execution_time. " Mins \n ";
 
       foreach ($rss_array as $scrape) {
-        if(isset($scrape->rss_array["ILINK"]))  {
-          $scraped[$index]["links"] = $scrape->rss_array["ILINK"];
-          $scraped[$index]["title"] = $scrape->rss_array["ITITLE"];
+        if(isset($scrape["ILINK"]))  {
+          $scraped[$index]["links"] = $scrape["ILINK"];
+          $scraped[$index]["title"] = $scrape["ITITLE"];
           for($i=0; $i<count($scraped[$index]["links"]); $i++) {
-            // Scraped::firstOrCreate([
-            //   'site_id' =>  $result["id"],
-            //   'link'    =>  $scraped[$index]["links"][$i],
-            //   'title'   =>  $scraped[$index]["title"][$i]
-            //   ]);
+            Scraped::firstOrCreate([
+              'site_id' =>  $result["id"],
+              'link'    =>  $scraped[$index]["links"][$i],
+              'title'   =>  $scraped[$index]["title"][$i]
+              ]);
             var_dump($scraped[$index]["links"][$i]);
           }
           $index++;

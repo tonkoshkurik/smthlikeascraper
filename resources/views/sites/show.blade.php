@@ -6,7 +6,7 @@
       <div class="panel panel-default">
         <div class="panel-heading">Last fetched result</div>
         <div class="panel-body">
-          <p>Scratch results from site: <b>{{ $site->site_to_fetch }} </b></p>
+          <p>Scratch results from: <br><b>{!! nl2br($site->site_to_fetch) !!}</b></p>
           {{--                    {{ dd(get_defined_vars()) }} --}}
           @if(count($fetch))
           <table class="table">
@@ -22,8 +22,10 @@
               <tr>
                <td><a rel="noreferrer" href="{{ $fetched->link }}">{{ $fetched->title }}</a></td>
                <td>
-                @if($fetched->saved != '')
+                @if($fetched->saved !== 0)
                  <button class="btn btn-primary editpost" data-id="{{ $fetched->saved }}"  data-toggle="modal" data-target="#editPost">Edit post</button>
+                @elseif($fetched->saved === 0)
+                  <span class="bg-warning">First fetch</span>
                 @else
                   <span class="warning">Fetch error</span>
                 @endif
