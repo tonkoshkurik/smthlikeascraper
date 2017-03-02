@@ -38,7 +38,7 @@ class WpPost extends Command
       // $fetching_array = array($site->site_to_fetch, 'http://homegrownandhealthy.com' );
 
       $scrape = new Scrape\Scraper($fetching_array);
-      $rss_array = $scrape->getRssArray();
+      $rss_array = $scrape->getRssArray($fetching_array);
       $time_end = microtime(true);
 
       //dividing with 60 will give the execution time in minutes other wise seconds
@@ -64,10 +64,10 @@ class WpPost extends Command
         } else {
           echo "Error with: \n";
           var_dump($scrape);
-          FetchError::updateOrCreate([
-            'site_id'   =>  $result["id"],
-            'rss_url'   =>  $scrape->rss_url
-            ]);
+//          FetchError::updateOrCreate([
+//            'site_id'   =>  $result["id"],
+//            'rss_url'   =>  $scrape->rss_url
+//            ]);
         }
       }
     }
@@ -79,10 +79,12 @@ class WpPost extends Command
       $p_content = $post->getContent();
       $site = Sites::find($scraped->site_id);
       if(!$site->api_integraion){  // Need to change it after finish with integraion cheking
+//        dd($site);
         $auth    = array(
          "login"    =>   $site->login,
          "password" =>   $site->password
          );
+
         $wp_post = array(
          "title"   => $scraped->title,
          "content" => $p_content["html"]

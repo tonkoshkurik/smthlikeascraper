@@ -21,6 +21,9 @@ class CreateScrapedsTable extends Migration
             $table->integer('saved')->unsigned()->nullable();
             $table->integer('bulka')->unsigned()->nullable();
             $table->timestamps();
+            $table->foreign('site_id')->unsigned()
+              ->references('id')->on('sites')
+              ->onDelete('cascade');
         });
     }
 

@@ -79,7 +79,7 @@ class SitesController extends Controller
 
         $sites->site = $site;
         $sites->site_to_fetch = $request["site_to_fetch"];
-        $sites->login = $request["site_to_fetch"];
+        $sites->login = $request["login"];
         $sites->password = $request["password"];
 
         // @todo need to uncomment it

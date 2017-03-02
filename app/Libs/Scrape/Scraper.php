@@ -33,10 +33,19 @@ class Scraper
     // $settings = \App\Settings::find(1);
      $proxies = explode(PHP_EOL, $this->settings->proxy);
      $proxy = $proxies[array_rand($proxies)];
-     return Curl::to($url)
-      ->allowRedirect()
-      ->withOption('PROXY', trim($proxy))
-      ->get();
+     echo "\n================== \n";
+     if(is_string($url)){
+       var_dump($url);
+       echo "Sending req to: $url ,\n with proxy: $proxy \n";
+       echo "==================";
+       return Curl::to($url)
+         ->allowRedirect()
+         ->withOption('PROXY', trim($proxy))
+         ->get();
+     } else {
+       return FALSE;
+     }
+
   }
 
   public function getRssArray($url=''){
@@ -44,15 +53,16 @@ class Scraper
       $this->root_url = $url;
     }
     if(is_array($this->root_url)){
-      foreach ($this->root_url as $url) {
-        $html = $this->getHtml($url);
+      $this->rss_array = array();
+      foreach ($this->root_url as $urla) {
+        $html = $this->getHtml($urla);
         try {
-          $this->rss_url = $this->getRSSLocation($html, $url);
-          $rss_feed = $this->getHtml($this->rss_url);
+          $rss_url = $this->getRSSLocation($html, $urla);
+          $rss_feed = $this->getHtml($rss_url);
           $this->rss_array[] = download_parse_rss($rss_feed);
         } catch (\Exception $ex)
         {
-          echo 'No feeds were found for this URL: ' . $url ;
+          echo 'No feeds were found for this URL: ' . $urla ;
         }
 //        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
       }
@@ -61,7 +71,7 @@ class Scraper
       $html = $this->getHtml($url);
       try {
         $this->rss_url = $this->getRSSLocation($html, $url);
-        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
+//        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
         $rss_feed = $this->getHtml($this->rss_url);
         $this->rss_array = download_parse_rss($rss_feed);
         return $this->rss_array;
@@ -85,7 +95,6 @@ class Scraper
       'fixRelativeURLs' => true,
       'originalURL' => $this->root_url
     ];
-
     $readability = new HTMLParser($opts);
     return $readability->parse($html);
   }
@@ -97,33 +106,25 @@ class Scraper
   }
 
   private function send_to_bulkaddurl($apikey, $urls) {
-
-  $url_api = 'http://bulkaddurl.com/api';
-
-  $urls = implode(PHP_EOL, $urls);
-
-  $fields = array(
-      'urls'=>$urls,
-      'apikey'=>$apikey,
-      'name'=>'Adding task with scraper api',
-    );
-
-  $fields_string = http_build_query($fields);
-
-  //open connection
-  $ch = curl_init();
-
-  //set the url, number of POST vars, POST data
-  curl_setopt($ch,CURLOPT_URL,$url_api);
-  curl_setopt($ch,CURLOPT_POST, count($fields));
-  curl_setopt($ch,CURLOPT_POSTFIELDS,$fields_string);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-  //execute post
-  $result = curl_exec($ch);
-
-  $result = json_decode($result, true);
-  return $result;
+    $url_api = 'http://bulkaddurl.com/api';
+    $urls = implode(PHP_EOL, $urls);
+    $fields = array(
+        'urls'=>$urls,
+        'apikey'=>$apikey,
+        'name'=>'Adding task with scraper api',
+      );
+    $fields_string = http_build_query($fields);
+    //open connection
+    $ch = curl_init();
+    //set the url, number of POST vars, POST data
+    curl_setopt($ch,CURLOPT_URL,$url_api);
+    curl_setopt($ch,CURLOPT_POST, count($fields));
+    curl_setopt($ch,CURLOPT_POSTFIELDS,$fields_string);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    //execute post
+    $result = curl_exec($ch);
+    $result = json_decode($result, true);
+    return $result;
   } 
 
   /**

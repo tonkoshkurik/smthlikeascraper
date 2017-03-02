@@ -25,7 +25,7 @@
                 @if($fetched->saved !== 0)
                  <button class="btn btn-primary editpost" data-id="{{ $fetched->saved }}"  data-toggle="modal" data-target="#editPost">Edit post</button>
                 @elseif($fetched->saved === 0)
-                  <span class="bg-warning">First fetch</span>
+                  <span class="bg-warning">Cached</span>
                 @else
                   <span class="warning">Fetch error</span>
                 @endif
