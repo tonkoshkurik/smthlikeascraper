@@ -58,8 +58,14 @@ class Scraper
         $html = $this->getHtml($urla);
         try {
           $rss_url = $this->getRSSLocation($html, $urla);
+          echo "\nRSS loc from url: $urla \n";
           $rss_feed = $this->getHtml($rss_url);
+          echo "So, rss url is: $rss_url \n ____________\n";
           $this->rss_array[] = download_parse_rss($rss_feed);
+          echo "We have get RSS Array from feed \n";
+//          var_dump($this->rss_array);
+          echo "\n END rss array \n ============= \n";
+
         } catch (\Exception $ex)
         {
           echo 'No feeds were found for this URL: ' . $urla ;
@@ -163,7 +169,7 @@ class Scraper
             $href = $final_links[$n]['href'];
           }
           if($href){
-            if(strstr($href, "http://") !== false){ #if it's absolute
+            if( (strstr($href, "http://") !== false ) OR (strstr($href, "https://") !== false)){ #if it's absolute
               $full_url = $href;
             }else{ #otherwise, 'absolutize' it
               $url_parts = parse_url($location);

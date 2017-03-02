@@ -57,7 +57,9 @@ class WpPost extends Command
               'link'    =>  $scraped[$index]["links"][$i],
               'title'   =>  $scraped[$index]["title"][$i]
               ]);
-           echo "have scrape: " . $scraped[$index]["links"][$i];
+           echo "\n ============ \n";
+           echo "have scraped: " . $scraped[$index]["links"][$i];
+           echo "\n ============ \n";
 //            var_dump();
           }
           $index++;
@@ -92,6 +94,7 @@ class WpPost extends Command
 
         $wp_api = new WpAPI($site->site, $auth);
         $post_id = $wp_api->newPost($wp_post);
+
         if($post_id){
 
           echo "\n Saved post with $post_id and $scraped->title";
@@ -101,9 +104,11 @@ class WpPost extends Command
                   ->update(['saved' => $post_id]);
 
         } else {
+
           echo "update failed with post id: <br>";
           var_dump($post_id);
           echo "<br>";
+
         }
       }
     }
