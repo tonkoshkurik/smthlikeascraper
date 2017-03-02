@@ -54,7 +54,7 @@ class Scraper
         {
           echo('No feeds were found for this URL');
         }
-        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
+//        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
         $rss_feed = $this->getHtml($this->rss_url);
         $this->rss_array[] = download_parse_rss($rss_feed);
       }

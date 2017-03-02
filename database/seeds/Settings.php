@@ -11,9 +11,10 @@ class Settings extends Seeder
      */
     public function run()
     {
+        //
       DB::table('settings')->insert([
-      'bulkapi' => '7a82fd58be6aef63bb98cc4c68062c14',
-      'proxy' => '104.144.88.131:3128
+        'bulkapi' => '7a82fd58be6aef63bb98cc4c68062c14',
+        'proxy' => '104.144.88.131:3128
 23.229.91.130:3128
 23.250.64.188:3128
 23.229.85.116:3128
@@ -41,6 +42,6 @@ class Settings extends Seeder
 104.144.160.108:3128
 104.144.88.209:3128
 104.144.94.178:3128'
-    ]);
+      ]);
     }
 }
