@@ -42,35 +42,33 @@ class Scraper
   public function getRssArray($url=''){
     if( !$url == '') {
       $this->root_url = $url;
-      // dd('hi');
     }
-    
     if(is_array($this->root_url)){
       foreach ($this->root_url as $url) {
         $html = $this->getHtml($url);
         try {
           $this->rss_url = $this->getRSSLocation($html, $url);
+          $rss_feed = $this->getHtml($this->rss_url);
+          $this->rss_array[] = download_parse_rss($rss_feed);
         } catch (\Exception $ex)
         {
-          echo('No feeds were found for this URL');
+          echo 'No feeds were found for this URL: ' . $url ;
         }
 //        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
-        $rss_feed = $this->getHtml($this->rss_url);
-        $this->rss_array[] = download_parse_rss($rss_feed);
       }
       return $this->rss_array;
     } else {
       $html = $this->getHtml($url);
       try {
         $this->rss_url = $this->getRSSLocation($html, $url);
+        if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
+        $rss_feed = $this->getHtml($this->rss_url);
+        $this->rss_array = download_parse_rss($rss_feed);
+        return $this->rss_array;
       } catch (\Exception $ex)
       {
-        dd('No feeds were found for this URL');
+        echo 'No feeds were found for this URL: ' . $url;
       }
-      if(!$this->rss_url) $this->rss_url = $this->root_url . '?feed=rss2';
-      $rss_feed = $this->getHtml($this->rss_url);
-      $this->rss_array = download_parse_rss($rss_feed);
-      return $this->rss_array;
     }
   }
 

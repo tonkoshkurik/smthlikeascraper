@@ -71,7 +71,6 @@ class SitesController extends Controller
       $cheked = $this->checkAuth($request);
 
       if(is_array($cheked)){
-//       dd($cheked);
 
         $site = filter_var($request["site"], FILTER_VALIDATE_URL);
         // $site_to_fetch = $request["site_to_fetch"];
@@ -83,9 +82,13 @@ class SitesController extends Controller
         $sites->login = $request["site_to_fetch"];
         $sites->password = $request["password"];
 
+        // @todo need to uncomment it
         $sites->save();
 
         $site_id = $sites->id;
+
+//        dd($cheked);
+
 
         foreach ($cheked as $v)
         {

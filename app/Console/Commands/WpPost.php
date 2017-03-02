@@ -57,10 +57,12 @@ class WpPost extends Command
               'link'    =>  $scraped[$index]["links"][$i],
               'title'   =>  $scraped[$index]["title"][$i]
               ]);
-            var_dump($scraped[$index]["links"][$i]);
+           echo "have scrape: " . $scraped[$index]["links"][$i];
+//            var_dump();
           }
           $index++;
         } else {
+          echo "Error with: \n";
           var_dump($scrape);
           FetchError::updateOrCreate([
             'site_id'   =>  $result["id"],
