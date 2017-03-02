@@ -94,6 +94,8 @@ class WpPost extends Command
         $post_id = $wp_api->newPost($wp_post);
         if($post_id){
 
+          echo "\n Saved post with $post_id and $scraped->title";
+
           Scraped::where('title', $scraped->title)
                   ->where('link', $scraped->link)
                   ->update(['saved' => $post_id]);
