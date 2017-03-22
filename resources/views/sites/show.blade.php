@@ -6,7 +6,7 @@
       <div class="panel panel-default">
         <div class="panel-heading">Last fetched result</div>
         <div class="panel-body">
-          <p>Scratch results from: <br><b>{!! nl2br($site->site_to_fetch) !!}</b></p>
+          {{-- <p>Scratch results from: <br><b>{!! nl2br($site->site_to_fetch) !!}</b></p> --}}
           {{--                    {{ dd(get_defined_vars()) }} --}}
           @if(count($fetch))
           <table class="table">
