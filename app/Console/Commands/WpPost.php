@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Validation\Validator;
 use \App\Sites;
 use \App\Scraped;
 use \App\Libs\Scrape;
@@ -52,15 +54,37 @@ class WpPost extends Command
           $scraped[$index]["links"] = $scrape["ILINK"];
           $scraped[$index]["title"] = $scrape["ITITLE"];
           for($i=0; $i<count($scraped[$index]["links"]); $i++) {
-            Scraped::firstOrCreate([
+
+            // validation 
+            $validation = Validator::make(
+              array(
+                'link' => $scraped[$index]["links"][$i],
+                'title' => $scraped[$index]["title"][$i],
+                ),
+              array(
+                'link' => array( 'required', 'unique:scrapeds' ),
+                'title' => array( 'required', 'unique:scrapeds' ),
+                )
+              );
+
+            if ( $validation->fails() ) {
+                $errors = $validation->messages();
+                Log::error($errors);
+                echo "\n ============ \n";
+                echo $errors;
+                echo "\n ============ \n"; 
+            } else {
+              Scraped::firstOrCreate([
               'site_id' =>  $result["id"],
               'link'    =>  $scraped[$index]["links"][$i],
               'title'   =>  $scraped[$index]["title"][$i]
               ]);
-           echo "\n ============ \n";
-           echo "have scraped: " . $scraped[$index]["links"][$i];
-           echo "\n ============ \n";
-//            var_dump();
+            $message = "have scraped: " . $scraped[$index]["links"][$i];
+            Log::info($message);
+            echo "\n ============ \n";
+            echo $message;
+            echo "\n ============ \n"; 
+            }
           }
           $index++;
         } else {
