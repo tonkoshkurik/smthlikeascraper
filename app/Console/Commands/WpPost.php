@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
 use \App\Sites;
 use \App\Scraped;
 use \App\Libs\Scrape;
