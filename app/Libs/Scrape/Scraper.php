@@ -19,7 +19,6 @@ class Scraper
     require_once("LIB_http.php");
     require_once("LIB_parse.php");
     require_once("LIB_rss.php");
-
     $this->settings = \App\Setting::find(1);
     //    $html = file_get_contents($target);
     //    $this->rss_url = $this->getRSSLocation($html, $target);
@@ -30,14 +29,9 @@ class Scraper
   }
 
   public function getHtml($url){
-    // $settings = \App\Settings::find(1);
      $proxies = explode(PHP_EOL, $this->settings->proxy);
      $proxy = $proxies[array_rand($proxies)];
-     echo "\n================== \n";
      if(is_string($url)){
-       var_dump($url);
-       echo "Sending req to: $url ,\n with proxy: $proxy \n";
-       echo "==================";
        return Curl::to($url)
          ->allowRedirect()
          ->withOption('PROXY', trim($proxy))
@@ -45,7 +39,6 @@ class Scraper
      } else {
        return FALSE;
      }
-
   }
 
   public function getRssArray($url=''){
@@ -55,17 +48,11 @@ class Scraper
     if(is_array($this->root_url)){
       $this->rss_array = array();
       foreach ($this->root_url as $urla) {
-        $html = $this->getHtml($urla);
+//        $html = $this->getHtml($urla);
         try {
-          $rss_url = $this->getRSSLocation($html, $urla);
-          echo "\nRSS loc from url: $urla \n";
-          $rss_feed = $this->getHtml($rss_url);
-          echo "So, rss url is: $rss_url \n ____________\n";
+//          $rss_url = $this->getRSSLocation($html, $urla);
+          $rss_feed = $this->getHtml($urla);
           $this->rss_array[] = download_parse_rss($rss_feed);
-          echo "We have get RSS Array from feed \n";
-//          var_dump($this->rss_array);
-          echo "\n END rss array \n ============= \n";
-
         } catch (\Exception $ex)
         {
           echo 'No feeds were found for this URL: ' . $urla ;
@@ -133,14 +120,11 @@ class Scraper
     return $result;
   } 
 
-  /**
-   * @link http://keithdevens.com/weblog/archive/2002/Jun/03/RSSAuto-DiscoveryPHP
-   */
-  
-  public function getRSSLocation($html, $location){
+  public function getRSSLocation($html, $location)
+  {
     if(!$html or !$location){
       return false;
-    }else{
+    } else {
       #search through the HTML, save all <link> tags
       # and store each link's attributes in an associative array
       preg_match_all('/<link\s+(.*?)\s*\/?>/si', $html, $matches);
@@ -194,6 +178,5 @@ class Scraper
       return false;
     }
   }
-
 
 }

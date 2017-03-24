@@ -34,10 +34,7 @@ class WpPost extends Command
       $result["id"]        = $site->id;
       $result["fetched"]   = $site->site_to_fetch;
 
-      $fetching_array = explode(PHP_EOL, $site->site_to_fetch);
-
-      // dd($fetching_array);
-      // $fetching_array = array($site->site_to_fetch, 'http://homegrownandhealthy.com' );
+      $fetching_array = explode(PHP_EOL, $site->rss_feeds);
 
       $scrape = new Scrape\Scraper($fetching_array);
       $rss_array = $scrape->getRssArray($fetching_array);

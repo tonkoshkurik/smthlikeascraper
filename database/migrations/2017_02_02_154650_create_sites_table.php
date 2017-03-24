@@ -15,12 +15,13 @@ class CreateSitesTable extends Migration
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('site');
-            $table->text('login');
-            $table->text('password');
+            $table->string('site');
+            $table->string('login');
+            $table->string('password');
             $table->text('site_to_fetch');
-            $table->text('api_integration')->nullable();
-            $table->text('fetch_settings')->nullable();
+            $table->text('rss_feeds')->nullable();
+            $table->string('api_integration')->nullable();
+            $table->string('fetch_settings')->nullable();
             $table->timestamps();
         });
     }
