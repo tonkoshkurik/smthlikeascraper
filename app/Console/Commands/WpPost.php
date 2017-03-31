@@ -73,8 +73,8 @@ class WpPost extends Command
             } else {
               Scraped::firstOrCreate([
               'site_id' =>  $result["id"],
-              'link'    =>  $scraped[$index]["links"][$i],
-              'title'   =>  $scraped[$index]["title"][$i]
+              'link'    =>  str_limit($scraped[$index]["links"][$i], 250),
+              'title'   =>  str_limit($scraped[$index]["links"][$i], 250),
               ]);
             $message = "have scraped: " . $scraped[$index]["links"][$i];
             Log::info($message);
