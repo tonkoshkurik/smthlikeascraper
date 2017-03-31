@@ -103,6 +103,10 @@ class WpPost extends Command
       $site = Sites::find($scraped->site_id);
       if(!$site->api_integraion){  // Need to change it after finish with integraion cheking
 //        dd($site);
+        echo "we are parsed: \n";
+        $small = substr($p_content["html"], 0, 100);
+        echo $small;
+
         $auth    = array(
          "login"    =>   $site->login,
          "password" =>   $site->password
@@ -116,6 +120,8 @@ class WpPost extends Command
         $wp_api = new WpAPI($site->site, $auth);
         $post_id = $wp_api->newPost($wp_post);
 
+        echo "The post is: $post_id \n";
+
         if($post_id){
 
           echo "\n Saved post with $post_id and $scraped->title";
@@ -123,13 +129,10 @@ class WpPost extends Command
           Scraped::where('title', $scraped->title)
                   ->where('link', $scraped->link)
                   ->update(['saved' => $post_id]);
-
         } else {
-
           echo "update failed with post id: <br>";
           var_dump($post_id);
           echo "<br>";
-
         }
       }
     }
@@ -156,5 +159,4 @@ class WpPost extends Command
        $bulkaSender->sendLinkTo($links);
     }
   }
-
 }

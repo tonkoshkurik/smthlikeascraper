@@ -273,7 +273,7 @@ EOL;
             }
           } catch (\Exception $ex)
           {
-            echo 'No feeds were found for this URL: ' . $urla ;
+            echo 'No feeds were found for this URL: ' . $urla .'<br>';
           }
         }
         return $rss_array;
