@@ -66,7 +66,7 @@ class WpPost extends Command
 
             if ( $validation->fails() ) {
                 $errors = $validation->messages();
-                Log::error($errors);
+                // Log::error($errors);
                 echo "\n ============ \n";
                 echo $errors;
                 echo "\n ============ \n"; 
