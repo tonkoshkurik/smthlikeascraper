@@ -77,7 +77,6 @@ class WpPost extends Command
               'title'   =>  str_limit($scraped[$index]["links"][$i], 250),
               ]);
             $message = "have scraped: " . $scraped[$index]["links"][$i];
-            Log::info($message);
             echo "\n ============ \n";
             echo $message;
             echo "\n ============ \n"; 

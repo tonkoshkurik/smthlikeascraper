@@ -16,7 +16,7 @@ class CreateScrapedsTable extends Migration
         Schema::create('scrapeds', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('site_id')->unsigned();
-            $table->string('link')->unique();
+            $table->string('link');
             $table->string('title');
             $table->integer('saved')->unsigned()->nullable();
             $table->integer('bulka')->unsigned()->nullable();
