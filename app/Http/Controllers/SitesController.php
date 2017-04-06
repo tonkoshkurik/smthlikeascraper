@@ -147,15 +147,15 @@ class SitesController extends Controller
       $url .= isset($url_array["host"]) ? $url_array["host"] : $site;
       $url .= "/xmlrpc.php";
 
-      $wp_api =  new \HieuLe\WordpressXmlrpcClient\WordpressClient;
+      $wp_api =  new WpAPI($url, $auth);
 
       # Set the credentials for the next requests
-      $wp_api->setCredentials($url, $auth["login"],  $auth["password"]);
+ //     $wp_api->setCredentials($url, $auth["login"],  $auth["password"]);
 
       try {
-        $wp_api->getPosts();
+        $posts = $wp_api->getPosts();
       } catch(\Exception $exception) {
-        dd('invalid wordpress login');
+        dd('Wordpress Login error, please check if your XML-RPC enabled', $exception);
       }
 
       // get url's for rss feeds

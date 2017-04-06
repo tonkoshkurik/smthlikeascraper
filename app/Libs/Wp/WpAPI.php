@@ -17,7 +17,7 @@ class WpAPI
     $url  = isset($url_array["scheme"]) ? $url_array["scheme"] : "http";
     $url .= "://";
     $url .= isset($url_array["host"]) ? $url_array["host"] : $remote;
-    $url .= "/xmlrpc.php";;
+    $url .= "/xmlrpc.php";
     # Create client instance
     $this->wpClient = new \HieuLe\WordpressXmlrpcClient\WordpressClient;
     # Set the credentials for the next requests
