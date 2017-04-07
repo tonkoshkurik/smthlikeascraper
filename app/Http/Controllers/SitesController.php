@@ -48,16 +48,12 @@ class SitesController extends Controller
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'site' => 'unique:sites,site'
-        ]);
-
       $validator = Validator::make($request->all(), [
         'site' => 'required|unique:sites,site|max:255',
         'site_to_fetch' => 'required',
         'login' => 'required',
         'password' => 'required'
-        ]);
+      ]);
 
       if ($validator->fails()) {
         return redirect('sites/create')
