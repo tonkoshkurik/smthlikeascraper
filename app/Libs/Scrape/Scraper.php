@@ -31,7 +31,7 @@ class Scraper
   public function getHtml($url){
      $proxies = explode(PHP_EOL, $this->settings->proxy);
      $proxy = $proxies[array_rand($proxies)];
-     if(is_string($url)){
+     if( is_string($url) || $url !== "" ){
        return Curl::to($url)
          ->allowRedirect()
          ->withOption('PROXY', trim($proxy))

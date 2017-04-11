@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -371,6 +370,8 @@ EOL;
     {
         $site = Sites::find($id);
         $site->delete();
+        // delete scraped post for this site
+         \DB::table('scrapeds')->where('site_id', $id)->delete();
         return redirect('sites');
     }
   }

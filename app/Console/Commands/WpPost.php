@@ -9,6 +9,7 @@ use \App\Scraped;
 use \App\Libs\Scrape;
 use \App\Libs\Wp\WpAPI;
 use \App\FetchError;
+use Mockery\CountValidator\Exception;
 
 class WpPost extends Command
 {
@@ -34,17 +35,12 @@ class WpPost extends Command
       $result["id"]        = $site->id;
       $result["fetched"]   = $site->site_to_fetch;
 
-      $fetching_array = explode(PHP_EOL, $site->rss_feeds);
-
+      $fetching_array = explode("\n", $site->rss_feeds);
       $scrape = new Scrape\Scraper($fetching_array);
       $rss_array = $scrape->getRssArray($fetching_array);
       $time_end = microtime(true);
 
-      //dividing with 60 will give the execution time in minutes other wise seconds
-      $execution_time = ($time_end - $time_start)/60;
 
-      //execution time of the script
-      echo '<b>Total Execution Time:</b> '.$execution_time. " Mins \n ";
 
       foreach ($rss_array as $scrape) {
         if(isset($scrape["ILINK"]))  {
@@ -84,8 +80,8 @@ class WpPost extends Command
           }
           $index++;
         } else {
-          echo "Error with: \n";
-          var_dump($scrape);
+//          echo "Error with: \n";
+//          var_dump($scrape);
 //          FetchError::updateOrCreate([
 //            'site_id'   =>  $result["id"],
 //            'rss_url'   =>  $scrape->rss_url
@@ -96,15 +92,12 @@ class WpPost extends Command
 
     // Send all new posts to wp
     $newScraped = Scraped::whereNull('saved')->get();
+
     foreach ($newScraped as $scraped) {
       $post = new Scrape\Scraper($scraped->link);
       $p_content = $post->getContent();
       $site = Sites::find($scraped->site_id);
       if(!$site->api_integraion){  // Need to change it after finish with integraion cheking
-//        dd($site);
-        echo "we are parsed: \n";
-        $small = substr($p_content["html"], 0, 100);
-        echo $small;
 
         $auth    = array(
          "login"    =>   $site->login,
@@ -117,26 +110,34 @@ class WpPost extends Command
          );
 
         $wp_api = new WpAPI($site->site, $auth);
-        $post_id = $wp_api->newPost($wp_post);
 
-        echo "The post is: $post_id \n";
+        try{
+          $post_id = $wp_api->newPost($wp_post);
 
-        if($post_id){
+          echo "The post is: $post_id \n";
 
-          echo "\n Saved post with $post_id and $scraped->title";
+          if($post_id){
 
-          Scraped::where('title', $scraped->title)
-                  ->where('link', $scraped->link)
-                  ->update(['saved' => $post_id]);
-        } else {
-          echo "update failed with post id: <br>";
-          var_dump($post_id);
-          echo "<br>";
+            echo "\n Saved post with $post_id and $scraped->title";
+
+            Scraped::where('title', $scraped->title)
+              ->where('link', $scraped->link)
+              ->update(['saved' => $post_id]);
+          } else {
+            echo "update failed with post id: <br>";
+            var_dump($post_id);
+            echo "<br>";
+          }
+        } catch (Exception $ex)
+        {
+          // nothing
         }
+
       }
     }
     $saved = Scraped::whereNotNull('saved')->where('saved', '!=' , 0)->whereNull('bulka')->get();
     $links = array();
+
     foreach ($saved as $v) {
       $site = Sites::find($v->site_id);
       $auth    = array(
@@ -153,9 +154,16 @@ class WpPost extends Command
         Scraped::where('id', $scraped_id)->update(['bulka' => 1]);
       }
     }
+    
     if(count($links)){
        $bulkaSender = new Scrape\Scraper();
        $bulkaSender->sendLinkTo($links);
     }
+
+    //dividing with 60 will give the execution time in minutes other wise seconds
+    $execution_time = ($time_end - $time_start)/60;
+
+    //execution time of the script
+    echo '<b>Total Execution Time:</b> '.$execution_time. " Mins \n ";
   }
 }
