@@ -95,10 +95,14 @@ class WpPost extends Command
 
     foreach ($newScraped as $scraped) {
       $post = new Scrape\Scraper($scraped->link);
-      $p_content = $post->getContent();
-      $site = Sites::find($scraped->site_id);
-      if(!$site->api_integraion){  // Need to change it after finish with integraion cheking
-
+      $p_content = '';
+      try {
+        $p_content = $post->getContent();
+      } catch (Exception $ex){
+        var_dump($ex);
+      }
+      if($p_content !== ''){
+        $site = Sites::find($scraped->site_id);
         $auth    = array(
          "login"    =>   $site->login,
          "password" =>   $site->password
