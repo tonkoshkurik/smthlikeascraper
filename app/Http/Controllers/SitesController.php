@@ -114,8 +114,8 @@ class SitesController extends Controller
       }
 
       $f_array = array();
-      $fetching_array = explode(PHP_EOL, $request["site_to_fetch"]);
-      
+      $fetching_array = preg_split ('/$\R?^/m', $request["site_to_fetch"]); //  explode(PHP_EOL, $request["site_to_fetch"]);
+
       foreach ($fetching_array as $site_to_fetch) {
         # code...
         $site_to_fetch = trim(preg_replace('/\s\s+/', ' ', $site_to_fetch));
