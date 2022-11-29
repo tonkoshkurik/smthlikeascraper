@@ -12,7 +12,7 @@
     "ixudra/curl": "^6.7",
     "laravel/framework": "5.4.*",
     "laravel/tinker": "~1.0",
-    "phpxmlrpc/phpxmlrpc": "4.0"
+    "phpxmlrpc/phpxmlrpc": "4.9.0"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
